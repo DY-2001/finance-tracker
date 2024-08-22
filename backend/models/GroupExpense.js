@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const expenseSchema = new mongoose.Schema(
+const GroupExpenseSchema = new mongoose.Schema(
   {
     expenseDescription: { type: String, required: true },
     expenseAmount: { type: Number, required: true },
@@ -23,6 +23,6 @@ const expenseSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Expense = mongoose.model("Expense", expenseSchema);
+const GroupExpense = mongoose.model("GroupExpense", GroupExpenseSchema);
 
-module.exports = Expense;
+module.exports = GroupExpense;
