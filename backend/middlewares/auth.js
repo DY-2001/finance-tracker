@@ -21,3 +21,5 @@ const auth = async (req, res, next) => {
     res.status(500).json({ success: false, message: "Something went wrong" });
   }
 };
+
+module.exports = auth;
