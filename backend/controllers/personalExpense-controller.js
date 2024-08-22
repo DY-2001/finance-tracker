@@ -26,10 +26,27 @@ const createPersonalExpense = async (req, res) => {
   }
 };
 
+const getPersonalExpense = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const personalExpense = await PersonalExpense.findById(id);
+
+    if (!personalExpense) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Personal expense not found" });
+    }
+
+    res.status(200).json({ success: true, personalExpense });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   createPersonalExpense,
-//   getAllPersonalExpenses,
-//   getPersonalExpense,
-//   updatePersonalExpense,
-//   deletePersonalExpense,
+  //   getAllPersonalExpenses,
+  getPersonalExpense,
+  //   updatePersonalExpense,
+  // deletePersonalExpense,
 };
