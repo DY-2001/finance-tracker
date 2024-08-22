@@ -11,6 +11,18 @@ const userSchema = new mongoose.Schema(
       limit: { type: Number },
       amountSpent: { type: Number, default: 0 },
     },
+    personalExpenses: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "PersonalExpense",
+      },
+    ],
+    GroupExpense: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "GroupExpense",
+      },
+    ],
   },
   { timestamps: true }
 );
