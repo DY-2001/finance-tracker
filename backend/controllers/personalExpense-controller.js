@@ -26,6 +26,36 @@ const createPersonalExpense = async (req, res) => {
   }
 };
 
+const getAllPersonalExpenses = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = parseInt(req.query.offset) || 0;
+
+    const userExpenses = await User.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(userId) } },
+      { $project: { personalExpenses: 1 } },
+      { $unwind: "$personalExpenses" },
+      { $skip: offset },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: "personalexpenses",
+          localField: "personalExpenses",
+          foreignField: "_id",
+          as: "expenseDetails",
+        },
+      },
+      { $unwind: "$expenseDetails" },
+      { $replaceRoot: { newRoot: "$expenseDetails" } },
+    ]);
+
+    res.status(200).json({ success: true, data: userExpenses });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 const getPersonalExpense = async (req, res) => {
   try {
     const { id } = req.params;
@@ -80,28 +110,28 @@ const deletePersonalExpense = async (req, res) => {
   try {
     const { id } = req.params;
     const personalExpense = await PersonalExpense.findByIdAndDelete(id);
-    
+
     if (!personalExpense) {
       return res.state(404).json({
         success: false,
         message: "Personal expense not found",
       });
     }
-    
+
     const { userId } = req.user;
     const user = await User.findById(userId);
-    
+
     user.personalExpenses = user.personalExpenses.filter(
       (expenseId) => expenseId !== id
     );
-    
+
     if (
       user.expenseLimit.startDate <= personalExpense.createdAt &&
       user.expenseLimit.endDate >= personalExpense.createdAt
     ) {
       user.expenseLimit.amountSpent -= personalExpense.expenseAmount;
     }
-    
+
     await user.save();
 
     res.status(200).json({
@@ -115,7 +145,7 @@ const deletePersonalExpense = async (req, res) => {
 
 module.exports = {
   createPersonalExpense,
-  //   getAllPersonalExpenses,
+  getAllPersonalExpenses,
   getPersonalExpense,
   updatePersonalExpense,
   deletePersonalExpense,

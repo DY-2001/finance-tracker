@@ -4,7 +4,7 @@ const router = express.Router();
 const auth = require("../middlewares/auth");
 const {
   createPersonalExpense,
-  // getAllPersonalExpenses,
+  getAllPersonalExpenses,
   getPersonalExpense,
   updatePersonalExpense,
   deletePersonalExpense,
@@ -13,7 +13,7 @@ const {
 router.use(auth);
 
 router.post("/createPersonalExpense", createPersonalExpense);
-// router.get("/getAllPersonalExpenses", getAllPersonalExpenses);
+router.get("/getAllPersonalExpenses", getAllPersonalExpenses);
 router.get("/getPersonalExpense/:id", getPersonalExpense);
 router.put("/updatePersonalExpense/:id", updatePersonalExpense);
 router.delete("/deletePersonalExpense/:id", deletePersonalExpense);
