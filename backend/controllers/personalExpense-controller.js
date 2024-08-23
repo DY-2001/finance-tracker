@@ -45,15 +45,26 @@ const getPersonalExpense = async (req, res) => {
 
 const updatePersonalExpense = async (req, res) => {
   try {
-    const { id } = req.params;
     const { expenseDescription, expenseAmount } = req.body;
 
+    const { id } = req.params;
     const personalExpense = await PersonalExpense.findById(id);
+
+    const { userId } = req.user;
+    const user = await User.findById(userId);
+
+    if (
+      user.expenseLimit.startDate <= personalExpense.createdAt &&
+      user.expenseLimit.endDate >= personalExpense.createdAt
+    ) {
+      user.expenseLimit.amountSpent +=
+        expenseAmount - personalExpense.expenseAmount;
+    }
 
     personalExpense.expenseDescription = expenseDescription;
     personalExpense.expenseAmount = expenseAmount;
-
     await personalExpense.save();
+    await user.save();
 
     res.status(200).json({
       success: true,
@@ -65,10 +76,47 @@ const updatePersonalExpense = async (req, res) => {
   }
 };
 
+const deletePersonalExpense = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const personalExpense = await PersonalExpense.findByIdAndDelete(id);
+    
+    if (!personalExpense) {
+      return res.state(404).json({
+        success: false,
+        message: "Personal expense not found",
+      });
+    }
+    
+    const { userId } = req.user;
+    const user = await User.findById(userId);
+    
+    user.personalExpenses = user.personalExpenses.filter(
+      (expenseId) => expenseId !== id
+    );
+    
+    if (
+      user.expenseLimit.startDate <= personalExpense.createdAt &&
+      user.expenseLimit.endDate >= personalExpense.createdAt
+    ) {
+      user.expenseLimit.amountSpent -= personalExpense.expenseAmount;
+    }
+    
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Personal expense deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   createPersonalExpense,
   //   getAllPersonalExpenses,
   getPersonalExpense,
   updatePersonalExpense,
-  // deletePersonalExpense,
+  deletePersonalExpense,
 };

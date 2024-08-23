@@ -7,7 +7,7 @@ const {
   // getAllPersonalExpenses,
   getPersonalExpense,
   updatePersonalExpense,
-  // deletePersonalExpense,
+  deletePersonalExpense,
 } = require("../controllers/personalExpense-controller");
 
 router.use(auth);
@@ -16,6 +16,6 @@ router.post("/createPersonalExpense", createPersonalExpense);
 // router.get("/getAllPersonalExpenses", getAllPersonalExpenses);
 router.get("/getPersonalExpense/:id", getPersonalExpense);
 router.put("/updatePersonalExpense/:id", updatePersonalExpense);
-// router.delete("/deletePersonalExpense/:id", deletePersonalExpense);
+router.delete("/deletePersonalExpense/:id", deletePersonalExpense);
 
 module.exports = router;
