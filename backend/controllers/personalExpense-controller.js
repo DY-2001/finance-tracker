@@ -43,10 +43,32 @@ const getPersonalExpense = async (req, res) => {
   }
 };
 
+const updatePersonalExpense = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { expenseDescription, expenseAmount } = req.body;
+
+    const personalExpense = await PersonalExpense.findById(id);
+
+    personalExpense.expenseDescription = expenseDescription;
+    personalExpense.expenseAmount = expenseAmount;
+
+    await personalExpense.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Personal expense updated successfully",
+      personalExpense,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   createPersonalExpense,
   //   getAllPersonalExpenses,
   getPersonalExpense,
-  //   updatePersonalExpense,
+  updatePersonalExpense,
   // deletePersonalExpense,
 };
