@@ -22,7 +22,7 @@ router.post("/createGroup", createGroup);
 router.put("/updateGroup/:id", updateGroup);
 router.delete("/deleteGroup/:id", deleteGroup);
 router.post("/leaveGroup/:id", leaveGroup);
-router.post("/addUserToGroup", addUserToGroup);
+router.post("/addUserToGroup/:id", addUserToGroup);
 router.post("/removeUserFromGroup", removeUserFromGroup);
 router.post("/addGroupExpense", addGroupExpense);
 router.delete("/deleteGroupExpense", deleteGroupExpense);

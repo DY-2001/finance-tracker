@@ -96,6 +96,48 @@ const leaveGroup = async (req, res) => {
   }
 };
 
+const addUserToGroup = async (req, res) => {
+  try {
+    const { userAddedId } = req.body;
+    const { userId } = req.user;
+    const { id } = req.params;
+
+    const group = await Group.findById(id);
+
+    if (!group) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Group not found!" });
+    }
+
+    if (group.groupOwner.toString() !== userId) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Unauthorized Access!" });
+    }
+
+    const updatedGroup = await Group.findByIdAndUpdate(
+      id,
+      { $push: { groupMembers: userAddedId } },
+      { new: true }
+    );
+
+    if (!updatedGroup) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Group not found!" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "User added successfully!",
+      group: updatedGroup,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   createGroup,
   updateGroup,
