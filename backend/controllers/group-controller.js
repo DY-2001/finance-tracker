@@ -270,6 +270,42 @@ const deleteGroupExpense = async (req, res) => {
     .json({ success: true, message: "Expense delete successfully!", group });
 };
 
+const getAllGroupUsers = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const group = await Group.findById(id).populate("groupMembers");
+
+    if (!group) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Group not found!" });
+    }
+
+    res.status(200).json({ success: true, groupMembers: group.groupMembers });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const getAllGroupExpenses = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const group = await Group.findById(id).populate("groupExpensesId");
+
+    if (!group) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Group not found!" });
+    }
+
+    res
+      .status(200)
+      .json({ success: true, groupExpenses: group.groupExpensesId });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   createGroup,
   updateGroup,
@@ -279,7 +315,7 @@ module.exports = {
   removeUserFromGroup,
   addGroupExpense,
   deleteGroupExpense,
-  //   updateGroupExpense,
-  //   getAllGroupUsers,
-  //   getAllGroupExpenses,
+  // updateGroupExpense,
+  getAllGroupUsers,
+  getAllGroupExpenses,
 };

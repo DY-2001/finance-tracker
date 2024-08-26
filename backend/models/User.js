@@ -16,13 +16,7 @@ const userSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "PersonalExpense",
       },
-    ],
-    GroupExpense: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "GroupExpense",
-      },
-    ],
+    ]
   },
   { timestamps: true }
 );

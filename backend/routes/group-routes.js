@@ -12,8 +12,8 @@ const {
   addGroupExpense,
   deleteGroupExpense,
   // updateGroupExpense,
-  // getAllGroupUsers,
-  // getAllGroupExpenses,
+  getAllGroupUsers,
+  getAllGroupExpenses,
 } = require("../controllers/group-controller");
 
 router.use(auth);
@@ -27,8 +27,8 @@ router.post("/removeUserFromGroup", removeUserFromGroup);
 router.post("/addGroupExpense/:id", addGroupExpense);
 router.delete("/deleteGroupExpense/:id", deleteGroupExpense);
 // router.put("/updateGroupExpense", updateGroupExpense);
-// router.get("/getAllGroupUsers", getAllGroupUsers);
-// router.get("/getAllGroupExpenses", getAllGroupExpenses);
+router.get("/getAllGroupUsers/:id", getAllGroupUsers);
+router.get("/getAllGroupExpenses/:id", getAllGroupExpenses);
 
 router.get("/get");
 
