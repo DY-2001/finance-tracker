@@ -71,6 +71,31 @@ const deleteGroup = async (req, res) => {
   }
 };
 
+const leaveGroup = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId } = req.user;
+
+    const group = await Group.findByIdAndUpdate(
+      { _id: id },
+      { $pull: { groupMembers: userId } },
+      { new: true }
+    );
+
+    if (!group) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Group not found" });
+    }
+
+    res
+      .status(200)
+      .json({ success: true, message: "Left group successfully", group });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   createGroup,
   updateGroup,

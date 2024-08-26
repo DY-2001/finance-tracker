@@ -21,7 +21,7 @@ router.use(auth);
 router.post("/createGroup", createGroup);
 router.put("/updateGroup/:id", updateGroup);
 router.delete("/deleteGroup/:id", deleteGroup);
-router.post("/leaveGroup", leaveGroup);
+router.post("/leaveGroup/:id", leaveGroup);
 router.post("/addUserToGroup", addUserToGroup);
 router.post("/removeUserFromGroup", removeUserFromGroup);
 router.post("/addGroupExpense", addGroupExpense);
