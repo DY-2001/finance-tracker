@@ -275,6 +275,98 @@ const deleteGroupExpense = async (req, res) => {
     .json({ success: true, message: "Expense delete successfully!", group });
 };
 
+const updateGroupExpense = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId } = req.user;
+    const {
+      expenseAmount,
+      expenseDescription,
+      expenseDistribution,
+      amountPaidBy,
+    } = req.body;
+
+    const groupExpense = await GroupExpense.findById(id);
+
+    if (!groupExpense) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Expense does not exist!" });
+    }
+
+    if (groupExpense.amountPaidBy != userId) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Unauthorized Access!" });
+    }
+
+    const personalExpenses = await PersonalExpense.find({
+      "groupExpenseDetails.groupExpenseId": groupExpense._id,
+    });
+
+    await PersonalExpense.deleteMany({
+      "groupExpenseDetails.groupExpenseId": groupExpense._id,
+    });
+
+    const personalExpenseIds = personalExpenses.map((expense) => expense._id);
+
+    const deleteBulkUpdates = groupExpense.expenseDistribution.map(
+      ({ userId }) => ({
+        updateOne: {
+          filter: { _id: userId },
+          update: { $pull: { personalExpenses: { $in: personalExpenseIds } } },
+        },
+      })
+    );
+
+    await User.bulkWrite(deleteBulkUpdates);
+
+    const updatedGroupExpense = {
+      ...groupExpense,
+      expenseAmount,
+      expenseDescription,
+      expenseDistribution,
+      amountPaidBy,
+    };
+
+    await GroupExpense.findByIdAndUpdate(id, updatedGroupExpense);
+
+    const expensesToInsert = expenseDistribution.map(({ userId, amount }) => ({
+      expenseDescription,
+      expenseAmount: amount,
+      groupExpenseDetails: {
+        isGroupExpenseConnected: true,
+        groupExpenseId: groupExpense._id,
+      },
+      userConnected: userId,
+    }));
+    const insertedExpenses = await PersonalExpense.insertMany(expensesToInsert);
+
+    const bulkUpdates = expenseDistribution.map(({ userId }, index) => ({
+      updateOne: {
+        filter: { _id: userId },
+        update: { $push: { personalExpenses: insertedExpenses[index]._id } },
+      },
+    }));
+
+    await User.bulkWrite(bulkUpdates);
+
+    res.status(200).json({
+      success: true,
+      message: "Expense created successfully!",
+      groupExpense,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Expense updated successfully!",
+      groupExpense: updatedGroupExpense,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 const getAllGroupUsers = async (req, res) => {
   try {
     const { id } = req.params;
@@ -320,7 +412,7 @@ module.exports = {
   removeUserFromGroup,
   addGroupExpense,
   deleteGroupExpense,
-  // updateGroupExpense,
+  updateGroupExpense,
   getAllGroupUsers,
   getAllGroupExpenses,
 };
