@@ -213,9 +213,14 @@ const addGroupExpense = async (req, res) => {
     group.groupExpensesId.push(groupExpense._id);
     await group.save();
 
-    const expensesToInsert = expenseDistribution.map(({ amount }) => ({
+    const expensesToInsert = expenseDistribution.map(({ userId, amount }) => ({
       expenseDescription,
       expenseAmount: amount,
+      groupExpenseDetails: {
+        isGroupExpenseConnected: true,
+        groupExpenseId: groupExpense._id,
+      },
+      userConnected: userId,
     }));
     const insertedExpenses = await PersonalExpense.insertMany(expensesToInsert);
 

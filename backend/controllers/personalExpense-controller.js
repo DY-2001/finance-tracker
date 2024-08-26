@@ -7,6 +7,7 @@ const createPersonalExpense = async (req, res) => {
     const personalExpense = new PersonalExpense({
       expenseDescription,
       expenseAmount,
+      userConnected: req.user.userId,
     });
 
     await personalExpense.save();
