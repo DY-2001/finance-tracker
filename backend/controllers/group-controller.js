@@ -1,5 +1,7 @@
 const Group = require("../models/group");
 const GroupExpense = require("../models/GroupExpense");
+const PersonalExpense = require("../models/PersonalExpense");
+const User = require("../models/User");
 
 const createGroup = async (req, res) => {
   try {
@@ -164,12 +166,74 @@ const removeUserFromGroup = async (req, res) => {
       { new: true }
     );
 
+    res.status(200).json({
+      success: true,
+      message: "User removed successfully!",
+      group: updatedGroup,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const addGroupExpense = async (req, res) => {
+  try {
+    const {
+      expenseAmount,
+      expenseDescription,
+      expenseDistribution,
+      amountPaidBy,
+    } = req.body;
+    const { userId } = req.user;
+
+    const { id } = req.params;
+    const group = await Group.findById(id);
+
+    if (!group) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Group does not exist!" });
+    }
+
+    const groupMembers = group.groupMembers;
+    if (!groupMembers.includes(userId)) {
+      return res
+        .status(401)
+        .json({ success: false, messsage: "Unauthorized Access!" });
+    }
+
+    const groupExpense = new GroupExpense({
+      expenseDescription,
+      expenseAmount,
+      expenseDistribution,
+      amountPaidBy,
+    });
+    await groupExpense.save();
+
+    group.groupExpensesId.push(groupExpense._id);
+    await group.save();
+
+    const expensesToInsert = expenseDistribution.map(({ amount }) => ({
+      expenseDescription,
+      expenseAmount: amount,
+    }));
+    const insertedExpenses = await PersonalExpense.insertMany(expensesToInsert);
+
+    const bulkUpdates = expenseDistribution.map(({ userId }, index) => ({
+      updateOne: {
+        filter: { _id: userId },
+        update: { $push: { personalExpenses: insertedExpenses[index]._id } },
+      },
+    }));
+
+    await User.bulkWrite(bulkUpdates);
+
     res
       .status(200)
       .json({
         success: true,
-        message: "User removed successfully!",
-        group: updatedGroup,
+        message: "Expense created successfully!",
+        groupExpense,
       });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -184,8 +248,8 @@ module.exports = {
   addUserToGroup,
   removeUserFromGroup,
   addGroupExpense,
-  deleteGroupExpense,
-  updateGroupExpense,
-  getAllGroupUsers,
-  getAllGroupExpenses,
+  //   deleteGroupExpense,
+  //   updateGroupExpense,
+  //   getAllGroupUsers,
+  //   getAllGroupExpenses,
 };
