@@ -1,7 +1,7 @@
 const Group = require("../models/group");
 const GroupExpense = require("../models/GroupExpense");
-const PersonalExpense = require("../models/PersonalExpense");
-const User = require("../models/User");
+const PersonalExpense = require("../models/personalExpense");
+const User = require("../models/user");
 
 const createGroup = async (req, res) => {
   try {

@@ -1,3 +1,4 @@
+const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -45,15 +46,12 @@ const login = async (req, res) => {
       { expiresIn: "30d" }
     );
 
-    res
-      .status(200)
-      .header("Authorization", token)
-      .json({
-        success: true,
-        message: "Login Success!",
-        token: token,
-        user: user,
-      });
+    res.status(200).header("Authorization", token).json({
+      success: true,
+      message: "Login Success!",
+      token: token,
+      user: user,
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: "Something went wrong" });
   }
