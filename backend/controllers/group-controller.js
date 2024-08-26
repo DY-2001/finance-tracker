@@ -77,7 +77,7 @@ const leaveGroup = async (req, res) => {
     const { userId } = req.user;
 
     const group = await Group.findByIdAndUpdate(
-      { _id: id },
+      id,
       { $pull: { groupMembers: userId } },
       { new: true }
     );
@@ -133,6 +133,44 @@ const addUserToGroup = async (req, res) => {
       message: "User added successfully!",
       group: updatedGroup,
     });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const removeUserFromGroup = async (req, res) => {
+  try {
+    const { userRemovedId } = req.body;
+    const { userId } = req.user;
+    const { id } = req.params;
+
+    const group = await findById(id);
+
+    if (!group) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Group not exist!" });
+    }
+
+    if (group.groupOwner != userId) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Unauthorized Access!" });
+    }
+
+    const updatedGroup = await Group.findByIdAndUpdate(
+      id,
+      { $pull: { groupMembers: userRemovedId } },
+      { new: true }
+    );
+
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "User removed successfully!",
+        group: updatedGroup,
+      });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
