@@ -10,7 +10,7 @@ const {
   addUserToGroup,
   removeUserFromGroup,
   addGroupExpense,
-  // deleteGroupExpense,
+  deleteGroupExpense,
   // updateGroupExpense,
   // getAllGroupUsers,
   // getAllGroupExpenses,
@@ -25,7 +25,7 @@ router.post("/leaveGroup/:id", leaveGroup);
 router.post("/addUserToGroup/:id", addUserToGroup);
 router.post("/removeUserFromGroup", removeUserFromGroup);
 router.post("/addGroupExpense/:id", addGroupExpense);
-// router.delete("/deleteGroupExpense", deleteGroupExpense);
+router.delete("/deleteGroupExpense/:id", deleteGroupExpense);
 // router.put("/updateGroupExpense", updateGroupExpense);
 // router.get("/getAllGroupUsers", getAllGroupUsers);
 // router.get("/getAllGroupExpenses", getAllGroupExpenses);

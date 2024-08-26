@@ -228,16 +228,46 @@ const addGroupExpense = async (req, res) => {
 
     await User.bulkWrite(bulkUpdates);
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Expense created successfully!",
-        groupExpense,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Expense created successfully!",
+      groupExpense,
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
+};
+
+const deleteGroupExpense = async (req, res) => {
+  const { id } = req.params;
+  const { groupId } = req.body;
+  const { userId } = req.user;
+
+  const groupExpense = await GroupExpense.findById(id);
+
+  if (!groupExpense) {
+    return res
+      .status(404)
+      .json({ success: false, message: "Expense does not exist" });
+  }
+
+  if (groupExpense.amountPaidBy != userId) {
+    return res
+      .status(401)
+      .json({ success: false, message: "Unauthorized Access!" });
+  }
+
+  await GroupExpense.deleteOne(id);
+
+  const group = await Group.findByIdAndUpdate(
+    groupId,
+    { $pull: { groupExpensesId: id } },
+    { new: true }
+  );
+
+  res
+    .status(200)
+    .json({ success: true, message: "Expense delete successfully!", group });
 };
 
 module.exports = {
@@ -248,7 +278,7 @@ module.exports = {
   addUserToGroup,
   removeUserFromGroup,
   addGroupExpense,
-  //   deleteGroupExpense,
+  deleteGroupExpense,
   //   updateGroupExpense,
   //   getAllGroupUsers,
   //   getAllGroupExpenses,
