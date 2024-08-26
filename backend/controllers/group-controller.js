@@ -1,4 +1,5 @@
 const Group = require("../models/group");
+const GroupExpense = require("../models/GroupExpense");
 
 const createGroup = async (req, res) => {
   try {
@@ -20,9 +21,14 @@ const createGroup = async (req, res) => {
 
 const updateGroup = async (req, res) => {
   try {
-    const { groupName, groupId } = req.body;
-    const group = await Group.findById(groupId);
+    const { id } = req.params;
+    const { groupName } = req.body;
 
+    const group = await Group.findById(id);
+    if (!group) {
+      res.status(404).json({ success: false, message: "Group not exist!" });
+      return;
+    }
     if (group.groupOwner != user.userId) {
       res.status(401).json({ success: false, message: "Unauthorized Error" });
       return;
@@ -40,10 +46,36 @@ const updateGroup = async (req, res) => {
   }
 };
 
+const deleteGroup = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId } = req.user;
+
+    const group = Group.findOneAndDelete({
+      _id: id,
+      groupOwner: userId,
+    });
+
+    if (!group) {
+      res.status(404).json({ success: false, message: "Group not exist!" });
+      return;
+    }
+
+    await GroupExpense.deleteMany({ _id: { $in: group.groupExpensesId } });
+
+    res
+      .status(200)
+      .json({ success: true, message: "Group deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   createGroup,
   updateGroup,
   deleteGroup,
+  leaveGroup,
   addUserToGroup,
   removeUserFromGroup,
   addGroupExpense,

@@ -6,6 +6,7 @@ const {
   createGroup,
   updateGroup,
   deleteGroup,
+  leaveGroup,
   addUserToGroup,
   removeUserFromGroup,
   addGroupExpense,
@@ -18,8 +19,9 @@ const {
 router.use(auth);
 
 router.post("/createGroup", createGroup);
-router.put("/updateGroup", updateGroup);
-router.delete("/deleteGroup", deleteGroup);
+router.put("/updateGroup/:id", updateGroup);
+router.delete("/deleteGroup/:id", deleteGroup);
+router.post("/leaveGroup", leaveGroup);
 router.post("/addUserToGroup", addUserToGroup);
 router.post("/removeUserFromGroup", removeUserFromGroup);
 router.post("/addGroupExpense", addGroupExpense);
